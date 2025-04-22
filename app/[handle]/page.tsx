@@ -24,7 +24,7 @@ export default async function HandlePage(props: { params: Promise<{ handle: stri
         <main className="flex justify-center items-center p-8">
             <div className="flex flex-col items-center justify-center gap-4 w-full max-w-xl">
                 <h1 className="text-4xl font-bold">
-                    {handle}
+                    {decodeURIComponent(handle)}
                 </h1>
                 <p className="text-lg">
                     Showing latest tweets from {handle}
