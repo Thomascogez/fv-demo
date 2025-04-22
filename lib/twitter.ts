@@ -23,7 +23,8 @@ export const getTimelineTweets = async (handle: string) => {
     const cleanedHandle = cleanHandle(handle);
     const response = await fetch(`https://nitter.net/${cleanedHandle}`, {
         method: "GET",
-        credentials: "omit",
+        cache: "no-cache",
+        keepalive: false
     });
 
     if (!response.ok) {
