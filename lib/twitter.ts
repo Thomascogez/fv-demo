@@ -1,5 +1,4 @@
 import { load } from "cheerio";
-import axios from "axios";
 
 export type Tweet = {
     date: string;
