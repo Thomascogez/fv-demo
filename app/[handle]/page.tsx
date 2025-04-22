@@ -8,7 +8,7 @@ export default async function HandlePage(props: { params: Promise<{ handle: stri
     const endpoint = new URL(process.env.VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "http://localhost:3000");
     endpoint.pathname = `/api/analyze-profile/${handle}`;
 
-    const response = await fetch(`api/analyze-profile/${handle}`, {
+    const response = await fetch(endpoint, {
         method: "POST",
     })
 
