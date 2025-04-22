@@ -5,7 +5,7 @@ import { type TweetWithAiAnalysis } from "@/lib/ai";
 export default async function HandlePage(props: { params: Promise<{ handle: string }> }) {
     const { handle } = await props.params;
 
-    const endpoint = new URL(process.env.VERCEL_URL ?? "http://localhost:3000");
+    const endpoint = new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
     endpoint.pathname = `/api/analyze-profile/${handle}`;
 
     const response = await fetch(endpoint, {
