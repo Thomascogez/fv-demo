@@ -40,7 +40,7 @@ export const getTimelineTweets = async (handle: string) => {
         const $timelineItem = $(timelineItem);
 
         const authorAvatar = $timelineItem.find(".main-user-dts1>a>img").first().attr("src") ? $timelineItem.find(".main-user-dts1>a>img").first().attr("src") : "";
-        const [authorName, authorHandle] = $timelineItem.find(".user-text3>h4").first().text().split(" ");
+        const [authorName, authorHandle] = $timelineItem.find(".user-text3>a>h4").first().text().split(" ");
         const authorURL = `https://x.com/${authorName}`
 
         const tweetText = $timelineItem.find(".activity-descp>p").text();
