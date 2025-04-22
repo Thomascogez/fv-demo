@@ -18,7 +18,7 @@ export const TweetCard: React.FC<TweetCardProps> = ({ tweet }) => {
                         <span className="text-sm text-gray-500">·</span>
                         <span className="text-sm text-gray-500">{tweet.date}</span>
                     </div>
-                    <p className="mt-1 text-gray-800">{tweet.text}</p>
+                    <p className="mt-1 text-gray-800" dangerouslySetInnerHTML={{ __html: tweet.text }} />
 
                     <div className="mt-3 flex justify-between">
                         <div className="flex items-center gap-2">
