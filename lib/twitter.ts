@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import axios from "axios";
 
 export type Tweet = {
     date: string;
@@ -21,11 +22,7 @@ export const cleanHandle = (handle: string) => {
 
 export const getTimelineTweets = async (handle: string) => {
     const cleanedHandle = cleanHandle(handle);
-    const response = await fetch(`https://nitter.net/${cleanedHandle}`, {
-        headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-        }
-    });
+    const response = await fetch(`https://nitter.net/${cleanedHandle}`);
 
     if (!response.ok) {
         return [];
