@@ -1,14 +1,19 @@
 
 import { TweetCard } from "@/components/tweet-card";
-import { getTimelineTweets } from "@/lib/twitter";
-import { analyzeTweet } from "@/lib/ai";
+import { type TweetWithAiAnalysis } from "@/lib/ai";
 
 export default async function HandlePage(props: { params: Promise<{ handle: string }> }) {
     const { handle } = await props.params;
 
-    const tweets = await getTimelineTweets(handle)
+    const endpoint = new URL(process.env.VERCEL_URL ?? "http://localhost:3000");
+    endpoint.pathname = `/api/analyze-profile/${handle}`;
 
-    const tweetsWithAiAnalysis = await Promise.all(tweets.map(analyzeTweet));
+    const response = await fetch(endpoint, {
+        method: "POST",
+    })
+
+    const tweetsWithAiAnalysis: TweetWithAiAnalysis[] = await response.json();
+
 
     return (
         <main className="flex justify-center items-center p-8">
