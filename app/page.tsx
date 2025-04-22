@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Form from 'next/form'
+import { SubmitButton } from "@/components/submit-button";
 
 
 export default function Home() {
@@ -16,7 +17,7 @@ export default function Home() {
         <p className="text-lg">Enter a Twitter handle to analyze latest tweets</p>
         <Form action={handleFormSubmit} className="flex items-center gap-2 w-full">
           <input name="handle" required type="text" placeholder="Enter a Twitter handle" className="w-full rounded-lg border border-gray-300 p-4 text-gray-900 focus:border-blue-500 focus:ring-blue-500" />
-          <button className="bg-black rounded-lg p-4 text-white">Analyze</button>
+          <SubmitButton>Analyze</SubmitButton>
         </Form>
       </div>
     </main>

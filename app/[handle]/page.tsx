@@ -1,4 +1,6 @@
 
+import { redirect } from "next/navigation";
+
 import { TweetCard } from "@/components/tweet-card";
 import { type TweetWithAiAnalysis } from "@/lib/ai";
 
@@ -8,14 +10,15 @@ export default async function HandlePage(props: { params: Promise<{ handle: stri
     const endpoint = new URL(process.env.VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
     endpoint.pathname = `/api/analyze-profile/${handle}`;
 
-    console.log(endpoint);
-
     const response = await fetch(endpoint, {
         method: "POST",
     })
 
-    const tweetsWithAiAnalysis: TweetWithAiAnalysis[] = await response.json();
+    if (!response.ok) {
+        return redirect("/")
+    }
 
+    const tweetsWithAiAnalysis: TweetWithAiAnalysis[] = await response.json();
 
     return (
         <main className="flex justify-center items-center p-8">
