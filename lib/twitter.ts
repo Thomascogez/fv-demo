@@ -76,7 +76,7 @@ export const scapeUserTweet = async (handle: string) => {
     const text = await response.text();
 
     const $ = load(text);
-    const timelineItems = Array.from($(".main-posts").find(".activity-posts")).slice(0, 10);
+    const timelineItems = Array.from($(".main-posts").find(".activity-posts"))
 
     const tweets: Array<Tweet> = timelineItems.flatMap((timelineItem) => {
         const $timelineItem = $(timelineItem);
