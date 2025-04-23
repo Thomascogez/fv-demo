@@ -146,7 +146,7 @@ export const getTimelineTweets = async (handle: string, options: { limit: number
 
         const results: SearchTweetResponse = await response.json();
 
-        if (!results.tweets || !results.cursor) {
+        if (!results.tweets) {
             return tweets;
         }
 
@@ -165,6 +165,10 @@ export const getTimelineTweets = async (handle: string, options: { limit: number
                     url: `https://twitter.com/${tweet.core.screen_name}`,
                 },
             }));
+
+        if (!results.cursor) {
+            return [...tweets, ...pageTweets];
+        }
 
 
         return await fetchUntilDone([...tweets, ...pageTweets], { page: params.page + 1, cursor: results.cursor });
