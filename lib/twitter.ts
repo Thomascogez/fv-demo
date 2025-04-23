@@ -1,6 +1,8 @@
+import { deduplicateArrayByProperty } from "@/utils";
 import { load } from "cheerio";
 
 export type Tweet = {
+    id: string;
     date: string;
     text: string;
     url: string;
@@ -32,7 +34,8 @@ export type SearchTweetResponse = {
             profile_image_url_https: string,
             name: string
         }
-    }>
+    }>,
+    cursor?: string
 }
 
 
@@ -91,9 +94,11 @@ export const scapeUserTweet = async (handle: string) => {
         const tweetText = $timelineItem.find(".activity-descp>p").text();
         const tweetLike = $timelineItem.find(".like-comment-view>.left-comments>.like-item:nth-child(3)>span").text() ?? 0;
         const tweetDate = $timelineItem.find(".user-text3>span").text();
-        const tweetURL = $timelineItem.find(".user-text3>a").attr("href") ? `https://x.com${$timelineItem.find(".tweet-link").attr("href")}` : "";
+        const tweetURL = $timelineItem.find(".user-text3>span>a").attr("href") ? `https://x.com${$timelineItem.find(".user-text3>span>a").attr("href")}` : "";
+        const tweetId = tweetURL.split("/").at(-1) ?? "";
 
         return {
+            id: tweetId,
             author: {
                 avatar: authorAvatar ?? "",
                 handle: authorHandle,
@@ -113,14 +118,13 @@ export const scapeUserTweet = async (handle: string) => {
 export const getTimelineTweets = async (handle: string, options: { limit: number } = { limit: 10 }) => {
     const cleanedHandle = cleanHandle(handle);
     const accountId = await getAccountIdFromHandle(cleanedHandle);
-    // const tweets: Array<Tweet> = [];
 
     if (!accountId) {
-        return scapeUserTweet(handle);
+        const scrappedTweets = await scapeUserTweet(handle);
+        return deduplicateArrayByProperty(scrappedTweets, "id").slice(0, options.limit);
     }
 
-    const fetchUntilDone = async (tweets: Array<Tweet> = [], params: { page: number } = { page: 1 }) => {
-
+    const fetchUntilDone = async (tweets: Array<Tweet> = [], params: { page: number, cursor?: string } = { page: 1 }) => {
         if (tweets.length >= options.limit) {
             return tweets;
         }
@@ -129,7 +133,7 @@ export const getTimelineTweets = async (handle: string, options: { limit: number
         body.append("data", accountId);
         body.append("action", "profile");
         body.append("page", `${params.page}`);
-        body.append("cursor", "")
+        body.append("cursor", params.cursor ?? "")
 
         const response = await fetch(`https://twstalker.com/service/api`, {
             method: "POST",
@@ -142,10 +146,14 @@ export const getTimelineTweets = async (handle: string, options: { limit: number
 
         const results: SearchTweetResponse = await response.json();
 
-        const pageTweets = Object.values(results.tweets)
-            .filter((tweet) => !tweet.is_retweet)
-            .slice(Math.max(0, tweets.length - options.limit))
-            .map((tweet) => ({
+        if (!results.tweets || !results.cursor) {
+            return tweets;
+        }
+
+        const pageTweets = Object.entries(results.tweets)
+            .filter(([, tweet]) => !tweet.is_retweet)
+            .map(([id, tweet]) => ({
+                id,
                 date: tweet.created_at,
                 text: tweet.full_text,
                 url: `https://twitter.com/${cleanedHandle}/status/${tweet.core.rest_id}`,
@@ -158,8 +166,11 @@ export const getTimelineTweets = async (handle: string, options: { limit: number
                 },
             }));
 
-        return await fetchUntilDone([...tweets, ...pageTweets], { page: params.page + 1 });
+
+        return await fetchUntilDone([...tweets, ...pageTweets], { page: params.page + 1, cursor: results.cursor });
     }
 
-    return fetchUntilDone([], { page: 1 });
+    const fetchedTweets = await fetchUntilDone([], { page: 1 });
+
+    return deduplicateArrayByProperty(fetchedTweets, "id").slice(0, options.limit);
 }
